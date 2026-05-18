@@ -1,0 +1,94 @@
+# ============================================================
+# GitHub Actions - Pipeline CI/CD
+# Proyecto Innovatech EP2 DevOps
+#
+# Flujo general:
+# 1. Se activa con push a la rama deploy.
+# 2. Construye las imágenes Docker.
+# 3. Publica las imágenes en Docker Hub.
+# 4. Se conecta a EC2 mediante SSH.
+# 5. Actualiza el repositorio y reinicia los contenedores.
+# ============================================================
+
+name: CI/CD Docker Build Push Deploy
+
+on:
+  push:
+    branches:
+      - deploy
+
+jobs:
+  build-push-deploy:
+    name: Build, Push and Deploy to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      # Descarga el código fuente desde GitHub.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Inicia sesión en Docker Hub.
+      # DOCKER_USERNAME y DOCKER_PASSWORD se configuran en GitHub Secrets.
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Construye y publica la imagen Docker del Frontend.
+      - name: Build and push Frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./front_despacho
+          file: ./front_despacho/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/innovatech-frontend:latest
+
+      # Construye y publica la imagen Docker del Backend de Ventas.
+      - name: Build and push Backend Ventas image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./back-Ventas_SpringBoot/Springboot-API-REST
+          file: ./back-Ventas_SpringBoot/Springboot-API-REST/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/innovatech-backend-ventas:latest
+
+      # Construye y publica la imagen Docker del Backend de Despachos.
+      - name: Build and push Backend Despachos image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
+          file: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/innovatech-backend-despachos:latest
+
+      # Se conecta a la instancia EC2 usando SSH.
+      # EC2_HOST, EC2_USER y EC2_SSH_KEY se configuran en GitHub Secrets.
+      - name: Deploy stack on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "Conectado a EC2 correctamente"
+
+            # Entrar a la carpeta donde estará clonado el repositorio en EC2.
+            cd ~/ProyectoSemestral-EP2-DevOps
+
+            # Actualizar el código desde la rama deploy.
+            git fetch origin
+            git checkout deploy
+            git pull origin deploy
+
+            # Descargar las imágenes más recientes desde Docker Hub.
+            docker pull ${{ secrets.DOCKER_USERNAME }}/innovatech-frontend:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/innovatech-backend-ventas:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/innovatech-backend-despachos:latest
+
+            # Reiniciar el stack completo.
+            docker compose down
+            docker compose up -d
+
+            # Mostrar contenedores activos como evidencia en los logs del pipeline.
+            docker ps

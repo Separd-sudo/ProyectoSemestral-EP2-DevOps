@@ -1,0 +1,103 @@
+# Archivo docker-compose.yml principal del proyecto
+# Permite levantar el Frontend, los Backends y las bases de datos en contenedores.
+
+services:
+
+  # Servicio de base de datos para el backend de ventas
+  postgres-ventas:
+    image: postgres:16
+    container_name: postgres-ventas
+    restart: always
+    environment:
+      POSTGRES_DB: ventas_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_ventas_data:/var/lib/postgresql/data
+    networks:
+      - innovatech-network
+
+  # Servicio de base de datos para el backend de despachos
+  postgres-despachos:
+    image: postgres:16
+    container_name: postgres-despachos
+    restart: always
+    environment:
+      POSTGRES_DB: despachos_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_despachos_data:/var/lib/postgresql/data
+    networks:
+      - innovatech-network
+
+  # Backend de ventas desarrollado con Spring Boot
+  backend-ventas:
+    image: separdx/innovatech-backend-ventas:latest
+    build:
+      context: ./back-Ventas_SpringBoot/Springboot-API-REST
+      dockerfile: Dockerfile
+    container_name: backend-ventas
+    restart: always
+    depends_on:
+      - postgres-ventas
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-ventas:5432/ventas_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SERVER_PORT: 8080
+    ports:
+      - "8081:8080"
+    networks:
+      - innovatech-network
+
+  # Backend de despachos desarrollado con Spring Boot
+  backend-despachos:
+    image: separdx/innovatech-backend-despachos:latest
+    build:
+      context: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
+      dockerfile: Dockerfile
+    container_name: backend-despachos
+    restart: always
+    depends_on:
+      - postgres-despachos
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-despachos:5432/despachos_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SERVER_PORT: 8080
+    ports:
+      - "8082:8080"
+    networks:
+      - innovatech-network
+
+  # Frontend React/Vite servido con Nginx
+  frontend-despacho:
+    image: separdx/innovatech-frontend:latest
+    build:
+      context: ./front_despacho
+      dockerfile: Dockerfile
+    container_name: frontend-despacho
+    restart: always
+    depends_on:
+      - backend-ventas
+      - backend-despachos
+    ports:
+      - "80:80"
+    networks:
+      - innovatech-network
+
+# Volúmenes Docker para persistencia de datos.
+# Permiten que los datos de PostgreSQL no se pierdan al reiniciar contenedores.
+volumes:
+  postgres_ventas_data:
+  postgres_despachos_data:
+
+# Red interna para que los servicios se comuniquen entre sí.
+networks:
+  innovatech-network:
+    driver: bridge
