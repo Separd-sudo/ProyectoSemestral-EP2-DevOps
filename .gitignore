@@ -1,0 +1,56 @@
+# ==============================
+# Dependencias de Node.js
+# ==============================
+
+# No se sube node_modules porque pesa mucho y se puede regenerar con npm install.
+node_modules/
+
+# ==============================
+# Builds del frontend
+# ==============================
+
+# Carpeta generada por Vite al ejecutar npm run build.
+dist/
+
+# ==============================
+# Builds de Java / Maven
+# ==============================
+
+# Carpeta generada por Maven al compilar los backends.
+target/
+
+# ==============================
+# Archivos de configuración local
+# ==============================
+
+# Variables locales que pueden contener credenciales o datos sensibles.
+.env
+
+# ==============================
+# Archivos del sistema operativo
+# ==============================
+
+# Archivos temporales de Windows.
+Thumbs.db
+desktop.ini
+
+# Archivos temporales de macOS.
+.DS_Store
+
+# ==============================
+# Configuración de IDE
+# ==============================
+
+# Configuración local de VS Code.
+.vscode/
+
+# Configuración de IntelliJ IDEA.
+.idea/
+*.iml
+
+# ==============================
+# Logs
+# ==============================
+
+# Archivos de registro generados durante ejecución o pruebas.
+*.log
