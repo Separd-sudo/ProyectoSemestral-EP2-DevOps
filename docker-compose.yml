@@ -15,7 +15,11 @@ services:
     ports:
       - "5433:5432"
     volumes:
+  # Persistencia de datos PostgreSQL
       - postgres_ventas_data:/var/lib/postgresql/data
+
+  # Script SQL de inicialización
+      - ./database/ventas-init.sql:/docker-entrypoint-initdb.d/ventas-init.sql
     networks:
       - innovatech-network
 
@@ -31,7 +35,11 @@ services:
     ports:
       - "5434:5432"
     volumes:
+  # Persistencia de datos PostgreSQL
       - postgres_despachos_data:/var/lib/postgresql/data
+
+  # Script SQL de inicialización
+      - ./database/despachos-init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - innovatech-network
 
@@ -90,7 +98,9 @@ services:
       - "80:80"
     networks:
       - innovatech-network
-
+    environment:
+      - VITE_API_VENTAS_URL=http://52.86.240.254:8081
+      - VITE_API_DESPACHOS_URL=http://52.86.240.254:8082=value
 # Volúmenes Docker para persistencia de datos.
 # Permiten que los datos de PostgreSQL no se pierdan al reiniciar contenedores.
 volumes:

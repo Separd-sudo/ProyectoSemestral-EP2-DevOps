@@ -65,10 +65,13 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 			<version>3.4.3</version>
 		</dependency>
-
+<!-- ===================================================== -->
+<!-- DRIVER POSTGRESQL                                     -->
+<!-- Permite conectar Spring Boot con PostgreSQL.          -->
+<!-- ===================================================== -->
 		<dependency>
-			<groupId>com.mysql</groupId>
-			<artifactId>mysql-connector-j</artifactId>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 
@@ -80,18 +83,71 @@
 	</dependencies>
 
 	<build>
-		<resources>
+		 <resources>
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>false</filtering>
 			</resource>
-		</resources>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
+		 </resources>
+        <plugins>
+
+    <!--
+        Plugin principal de Spring Boot.
+
+        Este plugin permite:
+        - Empaquetar la aplicación como .jar ejecutable.
+        - Ejecutar el proyecto usando spring-boot:run.
+        - Facilitar despliegues y contenedorización.
+    -->
+    <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+    </plugin>
+
+    <!--
+        Plugin de compilación de Maven.
+
+        Aquí configuramos explícitamente Lombok como annotation processor
+        para que Maven genere automáticamente:
+        - getters
+        - setters
+        - constructores
+        - builders
+
+        Esto corrige errores como:
+        - cannot find symbol getIdVenta()
+        - cannot find symbol builder()
+    -->
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+
+            <configuration>
+
+            <!--
+                Versión de Java utilizada por el proyecto.
+                Debe coincidir con <java.version>.
+            -->
+            <source>17</source>
+            <target>17</target>
+
+            <!--
+                Procesadores de anotaciones utilizados durante la compilación.
+                Lombok debe estar aquí para generar código automáticamente.
+            -->
+            <annotationProcessorPaths>
+                <path>
+                    <groupId>org.projectlombok</groupId>
+                    <artifactId>lombok</artifactId>
+                    <version>1.18.36</version>
+                </path>
+            </annotationProcessorPaths>
+
+           </configuration>
+        </plugin>
+
+      </plugins> 
 	</build>
 
 </project>
