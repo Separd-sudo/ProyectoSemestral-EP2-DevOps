@@ -89,6 +89,9 @@ services:
     build:
       context: ./front_despacho
       dockerfile: Dockerfile
+      args:
+        - VITE_API_VENTAS_URL=http://52.86.240.254:8081
+        - VITE_API_DESPACHOS_URL=http://52.86.240.254:8082
     container_name: frontend-despacho
     restart: always
     depends_on:
@@ -98,9 +101,6 @@ services:
       - "80:80"
     networks:
       - innovatech-network
-    environment:
-      - VITE_API_VENTAS_URL=http://52.86.240.254:8081
-      - VITE_API_DESPACHOS_URL=http://52.86.240.254:8082=value
 # Volúmenes Docker para persistencia de datos.
 # Permiten que los datos de PostgreSQL no se pierdan al reiniciar contenedores.
 volumes:
