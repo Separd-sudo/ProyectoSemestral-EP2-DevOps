@@ -54,10 +54,11 @@ services:
     depends_on:
       - postgres-ventas
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-ventas:5432/ventas_db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      SERVER_PORT: 8080
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-ventas:5432/ventas_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=tu_password_secreta
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update # <--- Para que cree las tablas sola
+      - SERVER_PORT: 8080
     ports:
       - "8081:8080"
     networks:
