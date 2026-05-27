@@ -11,15 +11,14 @@ COPY package*.json ./
 # Instala las dependencias del proyecto.
 RUN npm install
 
-# Copia el resto del código fuente del Frontend.
-COPY . .
-
-
-
 ARG VITE_API_VENTAS_URL
 ARG VITE_API_DESPACHOS_URL
 ENV VITE_API_VENTAS_URL=$VITE_API_VENTAS_URL
 ENV VITE_API_DESPACHOS_URL=$VITE_API_DESPACHOS_URL
+
+# Copia el resto del código fuente del Frontend.
+COPY . .
+
 # Construye la versión productiva del proyecto.
 RUN npm run build
 

@@ -15,6 +15,8 @@ export const TableCompras = () => {
     }).then((response) => {
   console.log(response.data);
   setVentas(response.data);
+    }).catch((error) => {
+  console.error("Error de conexion con el Backend Ventas:", error);
     });
   };
   // Llamada a la función para obtener los datos cuando el componente se monta
