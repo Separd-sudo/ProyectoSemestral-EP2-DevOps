@@ -9,16 +9,13 @@ services:
     container_name: postgres-ventas
     restart: always
     environment:
-      POSTGRES_DB: ventas_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      - POSTGRES_DB=ventas_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
       - "5433:5432"
     volumes:
-  # Persistencia de datos PostgreSQL
       - postgres_ventas_data:/var/lib/postgresql/data
-
-  # Script SQL de inicialización
       - ./database/ventas-init.sql:/docker-entrypoint-initdb.d/ventas-init.sql
     networks:
       - innovatech-network
@@ -29,16 +26,13 @@ services:
     container_name: postgres-despachos
     restart: always
     environment:
-      POSTGRES_DB: despachos_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      - POSTGRES_DB=despachos_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
       - "5434:5432"
     volumes:
-  # Persistencia de datos PostgreSQL
       - postgres_despachos_data:/var/lib/postgresql/data
-
-  # Script SQL de inicialización
       - ./database/despachos-init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - innovatech-network
@@ -56,9 +50,9 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-ventas:5432/ventas_db
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=tu_password_secreta
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update # <--- Para que cree las tablas sola
-      - SERVER_PORT: 8080
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SERVER_PORT=8080
     ports:
       - "8081:8080"
     networks:
@@ -75,10 +69,11 @@ services:
     depends_on:
       - postgres-despachos
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-despachos:5432/despachos_db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      SERVER_PORT: 8080
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-despachos:5432/despachos_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SERVER_PORT=8080
     ports:
       - "8082:8080"
     networks:
@@ -102,8 +97,8 @@ services:
       - "80:80"
     networks:
       - innovatech-network
+
 # Volúmenes Docker para persistencia de datos.
-# Permiten que los datos de PostgreSQL no se pierdan al reiniciar contenedores.
 volumes:
   postgres_ventas_data:
   postgres_despachos_data:
