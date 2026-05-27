@@ -5,36 +5,53 @@ import axios from "axios";
 export const FormCierreDespacho = ({ despacho, onClose }) => {
   const { register, handleSubmit } = useForm();
 
+  // Función para procesar la actualización del despacho
   const onSubmit = async (data) => {
-    console.log("onSubmit ejecutado");
+    console.log("onSubmit ejecutado en Cierre Despacho");
+    
+    // Armamos el JSON con los datos capturados en el formulario
+    // Ajustado a 'entregado' para mantener consistencia con el modelo de datos de la tabla
     const jsonData = {
-      intento: data.intento,
-      despachado: data.despachado,
+      intento: parseInt(data.intento), // Aseguramos que viaje como número entero
+      entregado: data.entregado === "true", // Convertimos el string del select a un booleano real
     };
 
-    console.log("Datos del formulario:", jsonData);
+    console.log("Datos a enviar para actualizar despacho:", jsonData);
 
     try {
+      // ACTUALIZACIÓN DE DESPACHO: Apuntamos dinámicamente a la URL del microservicio de Despachos
       await axios.put(
-        `http://192.168.320/api/v1/despachos/${despacho.idDespacho}`,
+        `${import.meta.env.VITE_API_DESPACHOS_URL}/api/v1/despachos/${despacho.idDespacho}`,
         jsonData,
         {
-          headers:{
+          headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
-      }
+          }
         }
       );
+
+      // Mensaje de éxito interactivo utilizando SweetAlert2
       Swal.fire({
         title: "Despacho modificado 🛻!",
-        text: "El despacho ha sido modificado exitosamente",
+        text: "El despacho ha sido modificado exitosamente en los registros",
         icon: "success",
         confirmButtonText: "Aceptar",
       });
+
+      // Cerramos la ventana modal para refrescar la grilla principal
+      onClose();
+
     } catch (error) {
-      console.error("Error en la solicitud:", error);
+      // Captura de excepciones si falla la comunicación con la instancia EC2
+      console.error("Error crítico al actualizar el despacho:", error);
+      Swal.fire({
+        title: "Error al actualizar ❌",
+        text: "Hubo un inconveniente al conectar con el servicio de despacho en AWS.",
+        icon: "error",
+        confirmButtonText: "Cerrar",
+      });
     }
-    onClose();
   };
 
   return (
@@ -51,7 +68,6 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
           <input
             disabled={true}
             type="text"
-            placeholder="Ingresa fecha de despacho"
             className="border border-gray-300 rounded-lg block w-full p-1 text-slate-400"
             value={despacho.idDespacho}
           />
@@ -60,7 +76,6 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
           <label className="block font-bold mb-2">Fecha despacho</label>
           <input
             type="date"
-            placeholder="Elige patente de camión"
             className="border border-gray-300 rounded-lg block w-full text-slate-400 p-1"
             value={despacho.fechaDespacho}
             disabled={true}
@@ -80,19 +95,19 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
           <input
             type="number"
             defaultValue={despacho.intento}
-            className="border border-gray-300 rounded-lg block w-full  p-1"
+            className="border border-gray-300 rounded-lg block w-full p-1"
             {...register("intento", { required: true })}
           />
         </div>
         <div className="mb-5">
           <label className="block font-bold mb-2">Despacho entregado</label>
           <select
-            defaultValue={false}
-            className="border border-gray-300 rounded-lg block w-full  p-1"
-            {...register("despachado", { required: true })}
+            defaultValue={despacho.entregado}
+            className="border border-gray-300 rounded-lg block w-full p-1"
+            {...register("entregado", { required: true })}
           >
-            <option value={false}>Despacho abierto</option>
-            <option value={true}>Cerrar despacho</option>
+            <option value="false">Despacho abierto (Pendiente)</option>
+            <option value="true">Cerrar despacho (Entregado)</option>
           </select>
         </div>
         <div className="mb-5">

@@ -1,20 +1,19 @@
-import React from "react";
-
 export const CardComponent = ({ title, description, buttonText, onClick }) => {
   return (
-    <div className=" p-10 bg-white border border-gray-200 rounded-lg shadow dark:bg-white mb-20 mr-10 h-full overflow-hidden">
-      <a href="#">
-        <h5 className="mb-1 text-lg font-bold tracking-tight text-gray-900 dark:text-gray-800">
-          {title}
-        </h5>
-      </a>
+    <div className="p-10 bg-white border border-gray-200 rounded-lg shadow mb-20 mr-10 h-full overflow-hidden">
+      {/* Título de la tarjeta informativa */}
+      <h5 className="mb-1 text-lg font-bold tracking-tight text-gray-900">
+        {title}
+      </h5>
+      {/* Descripción de la acción logística */}
       <p className="mb-5 font-normal text-gray-700 dark:text-gray-400">
         {description}
       </p>
       <div className="flex justify-center">
+        {/* Botón interactivo que gatilla el cambio de estado en el padre */}
         <button
           onClick={onClick}
-          className="inline-flex items-center justify-center w-80 h-10 px-3 py-2 text-base text-center text-white bg-teal-500 border rounded-xl font-bold hover:bg-teal-600 transition-all duration-500 "
+          className="inline-flex items-center justify-center w-80 h-10 px-3 py-2 text-base text-center text-white bg-teal-500 border rounded-xl font-bold hover:bg-teal-600 transition-all duration-500"
         >
           {buttonText}
           <svg
