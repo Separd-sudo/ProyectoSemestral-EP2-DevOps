@@ -3,28 +3,39 @@ import Swal from "sweetalert2";
 import axios from "axios";
 
 export const FormCierreDespacho = ({ despacho, onClose }) => {
-  const { register, handleSubmit } = useForm({});
+  // Inicializamos react-hook-form con los valores por defecto del despacho original
+  const { register, handleSubmit } = useForm({
+    defaultValues: {
+      patenteCamion: despacho?.patenteCamion || "PENDIENTE",
+      intento: despacho?.intento || 1,
+      despachado: despacho?.despachado ? "true" : "false"
+    }
+  });
 
   const onSubmit = async (data) => {
     console.log("onSubmit ejecutado en Cierre Despacho");
     
-    // Armamos el objeto COMPLETO respetando estrictamente Despacho.java
-    const jsonData = {
-      idDespacho: despacho.idDespacho,
-      fechaDespacho: despacho.fechaDespacho, // Mantiene el formato YYYY-MM-DD original
-      patenteCamion: despacho.patenteCamion,
-      intento: parseInt(data.intento, 10), // Capturado del input
-      idCompra: despacho.idCompra,
-      patenteCamion: data.patenteCamion || despacho.patenteCamion,
-      valorCompra: despacho.valorCompra,
-      despachado: data.despachado === "true", // Corregido: Se mapea a 'despachado' en vez de 'entregado'
-      entregado: data.entregado === "true", // Agregado para mantener compatibilidad con el modelo original
+    // Capturamos el select de estado para saber si el usuario marcó "Cerrar despacho"
+    const estaDespachado = data.despachado === "true";
 
-      despachado: true,
-      entregado: true,
-      isEntregado: true,
-      isDespachado: true,
-      estado: true
+    // Armamos el objeto COMPLETO blindado y limpio
+    const jsonData = {
+      idDespacho: despacho?.idDespacho,
+      fechaDespacho: despacho?.fechaDespacho, 
+      idCompra: despacho?.idCompra,
+      direccionCompra: despacho?.direccionCompra,
+      valorCompra: despacho?.valorCompra,
+      
+      // Capturamos los campos editables del formulario de forma segura
+      patenteCamion: data.patenteCamion || despacho?.patenteCamion || "PENDIENTE",
+      intento: parseInt(data.intento, 10) || 1, 
+
+      // Mapeo masivo de estados según lo seleccionado en el combobox
+      despachado: estaDespachado,
+      entregado: estaDespachado,
+      isEntregado: estaDespachado,
+      isDespachado: estaDespachado,
+      estado: estaDespachado
     };
 
     console.log("Datos completos a enviar al backend:", jsonData);
@@ -43,19 +54,22 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
 
       Swal.fire({
         title: "Despacho modificado 🛻!",
-        text: "El registro ha sido actualizado con éxito en AWS.",
+        text: "El registro ha sido actualizado con éxito.",
         icon: "success",
         confirmButtonText: "Aceptar",
         confirmButtonColor: "#0d9488"
       });
 
-      onClose();
+      // Ejecución segura de onClose para evitar pantallas en blanco si no viene la prop
+      if (typeof onClose === "function") {
+        onClose();
+      }
 
     } catch (error) {
       console.error("Error crítico al actualizar el despacho:", error);
       Swal.fire({
         title: "Error al actualizar ❌",
-        text: "Hubo un inconveniente con el servicio de despacho en AWS (Status 500).",
+        text: "Hubo un inconveniente con el servicio de despacho (Status 500).",
         icon: "error",
         confirmButtonText: "Cerrar",
       });
@@ -71,7 +85,7 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
           ⚙️ Gestión y Cierre de Despacho
         </div>
 
-        {/* CONTENEDOR EN REJILLA DE 2 COLUMNAS (Para ahorrar espacio vertical) */}
+        {/* CONTENEDOR EN REJILLA DE 2 COLUMNAS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           
           <div>
@@ -80,7 +94,7 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
               disabled
               type="text"
               className="bg-gray-50 border border-gray-200 rounded-lg block w-full p-2 text-gray-400 font-mono text-sm cursor-not-allowed"
-              value={despacho.idDespacho}
+              value={despacho?.idDespacho || ""}
             />
           </div>
 
@@ -90,7 +104,7 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
               disabled
               type="text"
               className="bg-gray-50 border border-gray-200 rounded-lg block w-full p-2 text-gray-400 font-mono text-sm cursor-not-allowed"
-              value={despacho.idCompra}
+              value={despacho?.idCompra || ""}
             />
           </div>
 
@@ -100,17 +114,18 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
               disabled
               type="text"
               className="bg-gray-50 border border-gray-200 rounded-lg block w-full p-2 text-gray-400 text-sm cursor-not-allowed"
-              value={despacho.fechaDespacho}
+              value={despacho?.fechaDespacho || ""}
             />
           </div>
 
+          {/* 💡 CORREGIDO: Input de Patente enlazado a react-hook-form y totalmente editable */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Patente Vehículo</label>
+            <label className="block text-sm font-bold text-teal-700 mb-1">Patente Vehículo</label>
             <input
               type="text"
-              className="bg-white border border-gray-300 rounded-lg block w-full p-2 text-gray-900 text-sm focus:ring-orange-500 focus:border-orange-500"
-              value={patenteInput} // Suponiendo que creaste un const [patenteInput, setPatenteInput] = useState(despacho.patenteCamion)
-              onChange={(e) => setPatenteInput(e.target.value)} // 💡 Actualiza el estado al escribir
+              className="border-2 border-teal-200 focus:border-teal-500 rounded-lg block w-full p-2 text-sm focus:outline-none transition-colors font-semibold uppercase"
+              placeholder="Ej: AB-CD-12"
+              {...register("patenteCamion", { required: true })}
             />
           </div>     
 
@@ -120,7 +135,7 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
               disabled
               type="text"
               className="bg-gray-50 border border-gray-200 rounded-lg block w-full p-2 text-gray-400 text-sm cursor-not-allowed"
-              value={despacho.direccionCompra}
+              value={despacho?.direccionCompra || ""}
             />
           </div>
 
@@ -130,26 +145,25 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
               disabled
               type="text"
               className="bg-gray-50 border border-gray-200 rounded-lg block w-full p-2 text-gray-400 text-sm cursor-not-allowed"
-              value={`$${despacho.valorCompra?.toLocaleString('es-CL')}`}
+              value={`$${despacho?.valorCompra?.toLocaleString('es-CL') || 0}`}
             />
           </div>
 
-          {/* CAMPOS EDITABLES (Llamativos y limpios) */}
+          {/* Intentos de Entrega */}
           <div>
             <label className="block text-sm font-bold text-teal-700 mb-1">Intentos de Entrega</label>
             <input
               type="number"
               min="1"
-              defaultValue={despacho.intento}
               className="border-2 border-teal-200 focus:border-teal-500 rounded-lg block w-full p-2 text-sm focus:outline-none transition-colors font-semibold"
               {...register("intento", { required: true })}
             />
           </div>
 
+          {/* Estado de Entrega */}
           <div className="md:col-span-2 mt-2">
             <label className="block text-sm font-bold text-teal-700 mb-1">Estado de Entrega</label>
             <select
-              defaultValue={despacho.despachado ? "true" : "false"}
               className="border-2 border-teal-200 focus:border-teal-500 rounded-lg block w-full p-2 text-sm focus:outline-none transition-colors font-semibold bg-white"
               {...register("despachado", { required: true })}
             >
@@ -160,7 +174,7 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
 
         </div>
 
-        {/* Botón de Acción Centrado y Elegante */}
+        {/* Botones de Acción */}
         <div className="flex gap-3 justify-end mt-2">
           <button
             type="button"
