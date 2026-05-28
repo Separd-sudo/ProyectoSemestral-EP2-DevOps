@@ -15,10 +15,16 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
       patenteCamion: despacho.patenteCamion,
       intento: parseInt(data.intento, 10), // Capturado del input
       idCompra: despacho.idCompra,
-      direccionCompra: despacho.direccionCompra,
+      patenteCamion: data.patenteCamion || despacho.patenteCamion,
       valorCompra: despacho.valorCompra,
       despachado: data.despachado === "true", // Corregido: Se mapea a 'despachado' en vez de 'entregado'
-      entregado: data.entregado === "true" // Agregado para mantener compatibilidad con el modelo original
+      entregado: data.entregado === "true", // Agregado para mantener compatibilidad con el modelo original
+
+      despachado: true,
+      entregado: true,
+      isEntregado: true,
+      isDespachado: true,
+      estado: true
     };
 
     console.log("Datos completos a enviar al backend:", jsonData);
@@ -101,12 +107,12 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">Patente Vehículo</label>
             <input
-              disabled
               type="text"
-              className="bg-gray-50 border border-gray-200 rounded-lg block w-full p-2 text-gray-400 text-sm cursor-not-allowed"
-              value={despacho.patenteCamion}
+              className="bg-white border border-gray-300 rounded-lg block w-full p-2 text-gray-900 text-sm focus:ring-orange-500 focus:border-orange-500"
+              value={patenteInput} // Suponiendo que creaste un const [patenteInput, setPatenteInput] = useState(despacho.patenteCamion)
+              onChange={(e) => setPatenteInput(e.target.value)} // 💡 Actualiza el estado al escribir
             />
-          </div>
+          </div>     
 
           <div className="md:col-span-2">
             <label className="block text-sm font-semibold text-gray-700 mb-1">Dirección de Entrega</label>
