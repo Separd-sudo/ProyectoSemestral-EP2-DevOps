@@ -35,7 +35,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Construye y publica la imagen Docker del Frontend.
+      # Construye y publica la imagen Docker del Frontend e inyecta las URLs públicas de producción.
       - name: Build and push Frontend image
         uses: docker/build-push-action@v6
         with:
@@ -43,6 +43,10 @@ jobs:
           file: ./front_despacho/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/innovatech-frontend:latest
+          # ===> AQUÍ PASAMOS LAS VARIABLES PARA QUE VITE LAS COPILE DENTRO DEL CONTENEDOR <===
+          build-args: |
+            VITE_API_VENTAS_URL=http://52.86.240.254:8081
+            VITE_API_DESPACHOS_URL=http://52.86.240.254:8082
 
       # Construye y publica la imagen Docker del Backend de Ventas.
       - name: Build and push Backend Ventas image
@@ -86,9 +90,14 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/innovatech-backend-ventas:latest
             docker pull ${{ secrets.DOCKER_USERNAME }}/innovatech-backend-despachos:latest
 
-            # Reiniciar el stack completo.
+            # Reiniciar el stack completo eliminando volúmenes hérfanos o contenedores desactualizados
             docker compose down
-            docker compose up -d
+            
+            # Forzamos a levantar usando las imágenes recién descargadas de Docker Hub
+            docker compose up -d --force-recreate
+
+            # Limpieza opcional en la EC2 de imágenes antiguas/huerfanas para no agotar el disco duro de AWS
+            docker image prune -f
 
             # Mostrar contenedores activos como evidencia en los logs del pipeline.
             docker ps
