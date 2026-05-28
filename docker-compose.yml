@@ -58,7 +58,7 @@ services:
     networks:
       - innovatech-network
 
-  # Backend de despachos desarrollado con Spring Boot
+  # Backend de despachos desarrollado con Spring Bootkk
   backend-despachos:
     image: separdx/innovatech-backend-despachos:latest
     build:
