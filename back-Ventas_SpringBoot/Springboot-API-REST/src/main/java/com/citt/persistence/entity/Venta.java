@@ -63,4 +63,11 @@ public class Venta {
      */
     @Column(name = "despacho_generado")
     private boolean despachoGenerado;
+
+    /*
+     * Patente del camión asignado
+     */
+    @Column(name = "patente_camion")
+    private String patenteCamion;   
+
 }

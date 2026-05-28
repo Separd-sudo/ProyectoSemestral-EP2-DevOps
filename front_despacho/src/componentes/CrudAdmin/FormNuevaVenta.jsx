@@ -8,16 +8,17 @@ export const FormNuevaVenta = ({ onVentaCreada }) => {
   const onSubmit = async (data) => {
     console.log("Insertando nueva venta desde el panel...");
 
-    // Armamos el JSON con los campos exactos que espera tu VentaController
+    // Armamos el JSON incluyendo la patente capturada
     const jsonData = {
       direccionCompra: data.direccionCompra,
-      fechaCompra: data.fechaCompra, // Captura YYYY-MM-DD directamente del input
+      fechaCompra: data.fechaCompra, 
       valorCompra: parseInt(data.valorCompra, 10),
-      despachoGenerated: false // Nace en false, el backend creará el despacho solo
+      despachoGenerated: false,
+      // 💡 Agregamos la patente al objeto. Si no escribe nada, viaja vacío
+      patenteCamion: data.patenteCamion ? data.patenteCamion.toUpperCase() : "" 
     };
 
     try {
-      // POST al microservicio de Ventas (Puerto 8081)
       await axios.post(
         `${import.meta.env.VITE_API_VENTAS_URL}/api/v1/ventas`,
         jsonData,
@@ -37,10 +38,10 @@ export const FormNuevaVenta = ({ onVentaCreada }) => {
         confirmButtonColor: "#0d9488"
       });
 
-      reset(); // Limpia los campos del formulario tras el éxito
+      reset(); 
       
       if (onVentaCreada) {
-        onVentaCreada(); // Refresca la grilla del padre inmediatamente
+        onVentaCreada(); 
       }
 
     } catch (error) {
@@ -78,7 +79,7 @@ export const FormNuevaVenta = ({ onVentaCreada }) => {
               <label className="block text-sm font-semibold text-gray-700 mb-1">Fecha de la Compra</label>
               <input
                 type="date"
-                defaultValue={new Date().toISOString().split("T")[0]} // Fecha de hoy por defecto
+                defaultValue={new Date().toISOString().split("T")[0]} 
                 className="border border-gray-300 focus:border-teal-500 rounded-lg block w-full p-2.5 text-sm focus:outline-none transition-colors"
                 {...register("fechaCompra", { required: true })}
               />
@@ -95,6 +96,18 @@ export const FormNuevaVenta = ({ onVentaCreada }) => {
               />
             </div>
           </div>
+
+          {/* 💡 NUEVO CAMPO: Entrada de Patente en la generación de Venta */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Patente del Vehículo Asignado (Opcional)</label>
+            <input
+              type="text"
+              placeholder="Ej: BB-CC-11"
+              className="border border-gray-300 focus:border-teal-500 rounded-lg block w-full p-2.5 text-sm focus:outline-none transition-colors uppercase font-mono"
+              {...register("patenteCamion")}
+            />
+          </div>
+
         </div>
 
         <button
