@@ -18,6 +18,7 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
       direccionCompra: despacho.direccionCompra,
       valorCompra: despacho.valorCompra,
       despachado: data.despachado === "true", // Corregido: Se mapea a 'despachado' en vez de 'entregado'
+      entregado: data.entregado === "true" // Agregado para mantener compatibilidad con el modelo original
     };
 
     console.log("Datos completos a enviar al backend:", jsonData);
