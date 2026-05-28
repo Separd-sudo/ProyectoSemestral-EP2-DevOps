@@ -60,7 +60,7 @@ export const FormNuevaVenta = ({ onVentaCreada }) => {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col text-left text-base">
         
         <div className="text-xl font-bold mb-4 text-teal-600 border-b pb-2 flex items-center gap-2">
-          🛒 Registrar Nueva Venta (Simulador)
+          🛒 Registrar Nueva Venta
         </div>
 
         <div className="grid grid-cols-1 gap-4 mb-4">
