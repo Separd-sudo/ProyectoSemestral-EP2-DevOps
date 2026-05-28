@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import axios from "axios";
 
 export const FormNuevaVenta = ({ onVentaCreada }) => {
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset } = useForm({});
 
   const onSubmit = async (data) => {
     console.log("Insertando nueva venta desde el panel...");

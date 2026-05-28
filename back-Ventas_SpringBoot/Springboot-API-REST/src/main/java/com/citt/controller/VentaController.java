@@ -7,12 +7,19 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -23,16 +30,54 @@ public class VentaController {
     @Autowired
     private VentaService ventaService;
 
-    @Operation(summary = "Crear una nueva venta", description = "Crea una nueva venta en el sistema")
+    @Operation(summary = "Crear una nueva venta", description = "Crea una nueva venta en el sistema y genera su despacho automático")
     @PostMapping
     public ResponseEntity<Venta> crearVenta(@Valid @RequestBody Venta venta){
+        
+        // 1. Guardamos la venta PRIMERO para que la base de datos genere el ID real
+        Venta ventaGuardada = ventaService.saveVenta(venta);
+
+        // 2. Construimos la URI de respuesta con el ID real ya asignado
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{idVenta}")
-                .buildAndExpand(venta.getIdVenta())
+                .buildAndExpand(ventaGuardada.getIdVenta())
                 .toUri();
-        ventaService.saveVenta(venta);
-        return ResponseEntity.created(location).body(venta);
+
+        // 3. FLUJO AUTOMÁTICO: Enviar los datos al microservicio de Despachos (Puerto 8082)
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            
+            // Usamos el nombre del contenedor de despachos en tu red de Docker.
+            // Si pruebas de forma local en tu PC fuera de Docker, cámbialo a "http://localhost:8082/api/v1/despachos"
+            String urlDespachos = "http://innovatech-backend-despachos:8082/api/v1/despachos";
+
+            // Estructuramos el JSON exactamente como lo exige Despacho.java
+            Map<String, Object> despachoPayload = new HashMap<>();
+            despachoPayload.put("idCompra", ventaGuardada.getIdVenta()); 
+            despachoPayload.put("direccionCompra", ventaGuardada.getDireccionCompra());
+            despachoPayload.put("valorCompra", ventaGuardada.getValorCompra());
+            despachoPayload.put("fechaDespacho", LocalDate.now().toString()); // Envía la fecha en formato YYYY-MM-DD
+            despachoPayload.put("patenteCamion", "PENDIENTE"); 
+            despachoPayload.put("intento", 1);
+            despachoPayload.put("despachado", false); // Nace abierto/pendiente de entrega
+
+            // Definimos las cabeceras JSON obligatorias
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(despachoPayload, headers);
+
+            // Se envía la petición POST síncrona de microservicio a microservicio
+            restTemplate.postForObject(urlDespachos, request, String.class);
+            System.out.println("🚀 [AUTOMATIZACIÓN] Despacho creado con éxito para la compra ID: " + ventaGuardada.getIdVenta());
+
+        } catch (Exception e) {
+            // Un catch seguro: si Despachos falla, se registra en log pero la venta se procesa igual
+            System.err.println("⚠️ [ALERTA] No se pudo generar el despacho automático: " + e.getMessage());
+        }
+
+        // Retornamos la respuesta HTTP 201 Created con el objeto guardado
+        return ResponseEntity.created(location).body(ventaGuardada);
     }
 
     @PutMapping("/{idVenta}")
@@ -52,15 +97,13 @@ public class VentaController {
     @Operation(summary = "Obtener una venta por ID", description = "Devuelve los detalles de una venta específica")
     public ResponseEntity<Venta> obtenerVenta(@PathVariable Long idVenta) throws VentaNotFoundException {
         Venta venta = ventaService.findById(idVenta);
-        return ResponseEntity.ok(venta); // Retornamos la venta encontrada con un estado 200 (OK)
+        return ResponseEntity.ok(venta);
     }
 
     @DeleteMapping("/{idVenta}")
     @Operation(summary = "Eliminar una venta", description = "Elimina una venta del sistema")
     public ResponseEntity<Void> eliminarVenta(@PathVariable Long idVenta) throws VentaNotFoundException {
         ventaService.deleteVenta(idVenta);
-        return ResponseEntity.noContent().build(); // Respuesta 204 No Content si se elimina correctamente
+        return ResponseEntity.noContent().build();
     }
 }
-
-

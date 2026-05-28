@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import axios from "axios";
 
 export const FormCierreDespacho = ({ despacho, onClose }) => {
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit } = useForm({});
 
   const onSubmit = async (data) => {
     console.log("onSubmit ejecutado en Cierre Despacho");
@@ -135,7 +135,7 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
               min="1"
               defaultValue={despacho.intento}
               className="border-2 border-teal-200 focus:border-teal-500 rounded-lg block w-full p-2 text-sm focus:outline-none transition-colors font-semibold"
-              {register("intento", { required: true })}
+              {...register("intento", { required: true })}
             />
           </div>
 
@@ -144,7 +144,7 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
             <select
               defaultValue={despacho.despachado ? "true" : "false"}
               className="border-2 border-teal-200 focus:border-teal-500 rounded-lg block w-full p-2 text-sm focus:outline-none transition-colors font-semibold bg-white"
-              {register("despachado", { required: true })}
+              {...register("despachado", { required: true })}
             >
               <option value="false">🔴 Despacho abierto (Pendiente)</option>
               <option value="true">🟢 Cerrar despacho (Entregado con éxito)</option>
