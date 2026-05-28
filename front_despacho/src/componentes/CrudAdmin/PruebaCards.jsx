@@ -53,7 +53,7 @@ export const PruebaCards = () => {
       )}
 
       {/* 👈 ENTRADA DE DATOS: Formulario compacto de ventas visible en la parte superior */}
-      <FormNuevaVenta onVentaCreada={handleVentaCreada} />
+      {/* <FormNuevaVenta onVentaCreada={handleVentaCreada} /> */}
 
       {/* Bloque superior con las tarjetas de acceso modular */}
       <div className="flex justify-center gap-4 mb-6">
