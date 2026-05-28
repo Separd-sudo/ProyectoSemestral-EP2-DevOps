@@ -50,7 +50,8 @@ public class VentaController {
             
             // Usamos el nombre del contenedor de despachos en tu red de Docker.
             // Si pruebas de forma local en tu PC fuera de Docker, cámbialo a "http://localhost:8082/api/v1/despachos"
-            String urlDespachos = "http://innovatech-backend-despachos:8082/api/v1/despachos";
+            // REPLANTEADO: container_name es 'backend-despachos' y el puerto interno es 8080
+            String urlDespachos = "http://backend-despachos:8080/api/v1/despachos";
 
             // Estructuramos el JSON exactamente como lo exige Despacho.java
             Map<String, Object> despachoPayload = new HashMap<>();
