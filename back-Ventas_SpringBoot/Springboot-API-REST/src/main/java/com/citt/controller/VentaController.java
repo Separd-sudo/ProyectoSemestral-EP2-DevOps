@@ -32,8 +32,8 @@ public class VentaController {
 
     @Operation(summary = "Crear una nueva venta", description = "Crea una nueva venta en el sistema y genera su despacho automático")
     @PostMapping
-    public ResponseEntity<Venta> crearVenta(@Valid @RequestBody Venta venta){
-        
+    public ResponseEntity<Venta> crearVenta(@Valid @RequestBody Venta venta) {
+
         // 1. Guardamos la venta PRIMERO para que la base de datos genere el ID real
         Venta ventaGuardada = ventaService.saveVenta(venta);
 
@@ -44,52 +44,56 @@ public class VentaController {
                 .buildAndExpand(ventaGuardada.getIdVenta())
                 .toUri();
 
-        // 3. FLUJO AUTOMÁTICO: Enviar los datos al microservicio de Despachos (Puerto 8082)
+        // 3. FLUJO AUTOMÁTICO: Enviar los datos al microservicio de Despachos (Puerto
+        // 8082)
         // 💡 REEMPLAZA ESTE BLOQUE INTERNO EN TU VENTACONTROLLER:
-try {
-    RestTemplate restTemplate = new RestTemplate();
-    String urlDespachos = "http://backend-despachos:8080/api/v1/despachos";
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String urlDespachos = "http://backend-despachos:8080/api/v1/despachos";
 
-    // Validamos si el objeto Venta trae una patente informada desde React
-    String patenteAsignada = (ventaGuardada.getPatenteCamion() != null && !ventaGuardada.getPatenteCamion().trim().isEmpty())
-            ? ventaGuardada.getPatenteCamion().trim().toUpperCase()
-            : "PENDIENTE";
+            // Validamos si el objeto Venta trae una patente informada desde React
+            String patenteAsignada = (ventaGuardada.getPatenteCamion() != null
+                    && !ventaGuardada.getPatenteCamion().trim().isEmpty())
+                            ? ventaGuardada.getPatenteCamion().trim().toUpperCase()
+                            : "PENDIENTE";
 
-    Map<String, Object> despachoPayload = new HashMap<>();
-    despachoPayload.put("idCompra", ventaGuardada.getIdVenta()); 
-    despachoPayload.put("direccionCompra", ventaGuardada.getDireccionCompra());
-    despachoPayload.put("valorCompra", ventaGuardada.getValorCompra());
-    despachoPayload.put("fechaDespacho", LocalDate.now().toString()); 
-    
-    // 🛻 Ahora mapea dinámicamente la patente del formulario
-    despachoPayload.put("patenteCamion", patenteAsignada); 
-    despachoPayload.put("intento", 1);
-    despachoPayload.put("despachado", false); // Inicia abierto
+            Map<String, Object> despachoPayload = new HashMap<>();
+            despachoPayload.put("idCompra", ventaGuardada.getIdVenta());
+            despachoPayload.put("direccionCompra", ventaGuardada.getDireccionCompra());
+            despachoPayload.put("valorCompra", ventaGuardada.getValorCompra());
+            despachoPayload.put("fechaDespacho", LocalDate.now().toString());
 
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
-    HttpEntity<Map<String, Object>> request = new HttpEntity<>(despachoPayload, headers);
+            // 🛻 Ahora mapea dinámicamente la patente del formulario
+            despachoPayload.put("patenteCamion", patenteAsignada);
+            despachoPayload.put("intento", 1);
+            despachoPayload.put("despachado", false); // Inicia abierto
 
-    restTemplate.postForObject(urlDespachos, request, String.class);
-    System.out.println("🚀 [AUTOMATIZACIÓN] Despacho creado con éxito para la compra ID: " + ventaGuardada.getIdVenta());
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(despachoPayload, headers);
 
-} catch (Exception e) {
-    System.err.println("⚠️ [ALERTA] No se pudo generar el despacho automático: " + e.getMessage());
-}
+            restTemplate.postForObject(urlDespachos, request, String.class);
+            System.out.println(
+                    "🚀 [AUTOMATIZACIÓN] Despacho creado con éxito para la compra ID: " + ventaGuardada.getIdVenta());
+
+        } catch (Exception e) {
+            System.err.println("⚠️ [ALERTA] No se pudo generar el despacho automático: " + e.getMessage());
+        }
         // Retornamos la respuesta HTTP 201 Created con el objeto guardado
         return ResponseEntity.created(location).body(ventaGuardada);
     }
 
     @PutMapping("/{idVenta}")
     @Operation(summary = "Actualizar una venta existente", description = "Actualiza los detalles de una venta existente")
-    public ResponseEntity<Venta> actualizarVenta(@Valid @PathVariable Long idVenta, @RequestBody Venta venta) throws VentaNotFoundException {
+    public ResponseEntity<Venta> actualizarVenta(@Valid @PathVariable Long idVenta, @RequestBody Venta venta)
+            throws VentaNotFoundException {
         Venta ventaActualizada = ventaService.updateVenta(idVenta, venta);
         return ResponseEntity.ok(ventaActualizada);
     }
 
     @GetMapping
     @Operation(summary = "Obtener todas las ventas", description = "Devuelve una lista de todas las ventas")
-    public ResponseEntity<List<Venta>> getVentas(){
+    public ResponseEntity<List<Venta>> getVentas() {
         return ResponseEntity.ok(ventaService.findAllVentas());
     }
 

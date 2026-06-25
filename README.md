@@ -146,7 +146,7 @@ Se publican imágenes de:
 ✔ Docker funcionando
 ✔ Microservicios implementados
 ✔ CI/CD configurado
-✔ Despliegue en AWS (parcial)
+✔ Despliegue en AWS 
 
 ------------------------------------------------------------
 
