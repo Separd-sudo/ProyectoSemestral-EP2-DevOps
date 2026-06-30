@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: innovatech-db-config
+  namespace: default
+data:
+  # Configuración Base de Datos Ventas
+  POSTGRES_VENTAS_DB: "ventas_db"
+  POSTGRES_VENTAS_USER: "postgres"
+  POSTGRES_VENTAS_PORT: "5432"
+  SPRING_DATASOURCE_VENTAS_URL: "jdbc:postgresql://postgres-ventas-service:5432/ventas_db"
+
+  # Configuración Base de Datos Despachos
+  POSTGRES_DESPACHOS_DB: "despachos_db"
+  POSTGRES_DESPACHOS_USER: "postgres"
+  POSTGRES_DESPACHOS_PORT: "5432"

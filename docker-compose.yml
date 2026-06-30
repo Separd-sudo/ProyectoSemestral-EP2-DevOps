@@ -3,7 +3,9 @@ version: '3.8'
 services:
   # Base de datos Ventas
   postgres-ventas:
-    image: postgres:16
+  build:
+    context: ./database
+    #image: postgres:16
     container_name: postgres-ventas
     restart: always
     environment:
@@ -20,13 +22,15 @@ services:
 
   # Base de datos Despachos
   postgres-despachos:
-    image: postgres:16
-    container_name: postgres-despachos
-    restart: always
-    environment:
-      - POSTGRES_DB=despachos_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+    build:
+      context: ./database
+      #image: postgres:16
+      container_name: postgres-despachos
+      restart: always
+      environment:
+        - POSTGRES_DB=despachos_db
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=postgres
     ports:
       - "5434:5432"
     volumes:
@@ -37,7 +41,9 @@ services:
 
   # Backend Ventas (Descarga directa desde Docker Hub)
   backend-ventas:
-    image: separdx/innovatech-backend-ventas:latest
+   build:
+    context: ./back-Ventas_SpringBoot/Springboot-API-REST
+    #image: separdx/innovatech-backend-ventas:latest
     container_name: backend-ventas
     restart: always
     depends_on:
@@ -55,7 +61,9 @@ services:
 
   # Backend Despachos (Descarga directa desde Docker Hub)
   backend-despachos:
-    image: separdx/innovatech-backend-despachos:latest
+    build:
+      context: ./back-Despachos_SpringBoot/Springboot-API-REST
+      #image: separdx/innovatech-backend-despachos:latest
     container_name: backend-despachos
     restart: always
     depends_on:
@@ -73,7 +81,9 @@ services:
 
   # Frontend Despacho (Descarga directa desde Docker Hub)
   frontend-despacho:
-    image: separdx/innovatech-frontend:latest
+    build:
+      context: ./frontend-despacho
+      #image: separdx/innovatech-frontend:latest
     container_name: frontend-despacho
     restart: always
     depends_on:

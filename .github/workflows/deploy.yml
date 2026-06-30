@@ -1,16 +1,4 @@
-# ============================================================
-# GitHub Actions - Pipeline CI/CD
-# Proyecto Innovatech EP2 DevOps
-#
-# Flujo general:
-# 1. Se activa con push a la rama deploy.
-# 2. Construye las imágenes Docker.
-# 3. Publica las imágenes en Docker Hub.
-# 4. Se conecta a EC2 mediante SSH.
-# 5. Actualiza el repositorio y reinicia los contenedores.
-# ============================================================
-
-name: CI/CD Docker Build Push Deploy
+name: CI/CD EKS Build Push Deploy EP3
 
 on:
   push:
@@ -19,85 +7,72 @@ on:
 
 jobs:
   build-push-deploy:
-    name: Build, Push and Deploy to EC2
+    name: Build, Push to ECR and Deploy to EKS
     runs-on: ubuntu-latest
 
     steps:
-      # Descarga el código fuente desde GitHub.
+      # 1. Descarga el código fuente desde GitHub
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Inicia sesión en Docker Hub.
-      # DOCKER_USERNAME y DOCKER_PASSWORD se configuran en GitHub Secrets.
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
+      # 2. Configurar las credenciales temporales de AWS Academy
+      # AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY y AWS_SESSION_TOKEN se configuran en GitHub Secrets
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
 
-      # Construye y publica la imagen Docker del Frontend e inyecta las URLs públicas de producción.
+      # 3. Autenticar con Amazon ECR (Reemplaza a Docker Hub)
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 4. Construir y subir imagen del Frontend a Amazon ECR
       - name: Build and push Frontend image
         uses: docker/build-push-action@v6
         with:
           context: ./front_despacho
           file: ./front_despacho/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/innovatech-frontend:latest
-          # ===> AQUÍ PASAMOS LAS VARIABLES PARA QUE VITE LAS COPILE DENTRO DEL CONTENEDOR <===
-          build-args: |
-            VITE_API_VENTAS_URL=http://52.86.240.254:8081
-            VITE_API_DESPACHOS_URL=http://52.86.240.254:8082
+          tags: 945052682152.dkr.ecr.us-east-1.amazonaws.com/innovatech-frontend:latest
 
-      # Construye y publica la imagen Docker del Backend de Ventas.
+      # 5. Construir y subir imagen de Backend Ventas a Amazon ECR
       - name: Build and push Backend Ventas image
         uses: docker/build-push-action@v6
         with:
           context: ./back-Ventas_SpringBoot/Springboot-API-REST
           file: ./back-Ventas_SpringBoot/Springboot-API-REST/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/innovatech-backend-ventas:latest
+          tags: 945052682152.dkr.ecr.us-east-1.amazonaws.com/innovatech-backend-ventas:latest
 
-      # Construye y publica la imagen Docker del Backend de Despachos.
+      # 6. Construir y subir imagen de Backend Despachos a Amazon ECR
       - name: Build and push Backend Despachos image
         uses: docker/build-push-action@v6
         with:
           context: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
           file: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/innovatech-backend-despachos:latest
+          tags: 945052682152.dkr.ecr.us-east-1.amazonaws.com/innovatech-backend-despachos:latest
 
-      # Se conecta a la instancia EC2 usando SSH.
-      # EC2_HOST, EC2_USER y EC2_SSH_KEY se configuran en GitHub Secrets.
-      - name: Deploy stack on EC2
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            echo "Conectado a EC2 correctamente"
+      # 7. Configurar kubectl para conectarse de manera automática a tu clúster de EKS
+      - name: Update Kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig --region us-east-1 --name EKS-Innovatech
 
-            # Entrar a la carpeta donde estará clonado el repositorio en EC2.
-            cd ~/ProyectoSemestral-EP2-DevOps
-
-            # Actualizar el código desde la rama deploy.
-            git fetch origin
-            git checkout deploy
-            git pull origin deploy
-
-            # Descargar las imágenes más recientes desde Docker Hub.
-            docker pull ${{ secrets.DOCKER_USERNAME }}/innovatech-frontend:latest
-            docker pull ${{ secrets.DOCKER_USERNAME }}/innovatech-backend-ventas:latest
-            docker pull ${{ secrets.DOCKER_USERNAME }}/innovatech-backend-despachos:latest
-
-            # Reiniciar el stack completo eliminando volúmenes hérfanos o contenedores desactualizados
-            docker compose down
-            
-            # Forzamos a levantar usando las imágenes recién descargadas de Docker Hub
-            docker compose up -d --force-recreate
-
-            # Limpieza opcional en la EC2 de imágenes antiguas/huerfanas para no agotar el disco duro de AWS
-            docker image prune -f
-
-            # Mostrar contenedores activos como evidencia en los logs del pipeline.
-            docker ps
+      # 8. Desplegar los manifiestos en el clúster (GitOps / CD automático)
+      - name: Deploy Manifests to EKS
+        run: |
+          # Aplicamos las configuraciones globales y los servicios si existen
+          kubectl apply -f k8s/global/db-secrets.yaml || true
+          kubectl apply -f k8s/global/db-config.yaml || true
+          
+          # Forzamos la actualización de las imágenes en los pods de EKS
+          kubectl apply -f k8s/backend-despachos/
+          kubectl apply -f k8s/frontend-despachos/
+          
+          # Forzamos el reinicio para asegurar el rollout completo de las nuevas imágenes
+          kubectl rollout restart deployment/backend-despachos-deployment
+          kubectl rollout restart deployment/frontend-despachos-deployment
