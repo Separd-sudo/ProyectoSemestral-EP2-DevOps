@@ -38,6 +38,7 @@ jobs:
           file: ./front_despacho/Dockerfile
           push: true
           tags: 945052682152.dkr.ecr.us-east-1.amazonaws.com/innovatech-frontend:latest
+          provenance: false
 
       # 5. Construir y subir imagen de Backend Ventas a Amazon ECR
       - name: Build and push Backend Ventas image
@@ -47,6 +48,7 @@ jobs:
           file: ./back-Ventas_SpringBoot/Springboot-API-REST/Dockerfile
           push: true
           tags: 945052682152.dkr.ecr.us-east-1.amazonaws.com/innovatech-backend-ventas:latest
+          provenance: false
 
       # 6. Construir y subir imagen de Backend Despachos a Amazon ECR
       - name: Build and push Backend Despachos image
@@ -56,6 +58,7 @@ jobs:
           file: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO/Dockerfile
           push: true
           tags: 945052682152.dkr.ecr.us-east-1.amazonaws.com/innovatech-backend-despachos:latest
+          provenance: false
 
       # 7. Configurar kubectl para conectarse de manera automática a tu clúster de EKS
       - name: Update Kubeconfig for EKS
