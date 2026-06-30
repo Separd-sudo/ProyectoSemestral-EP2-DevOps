@@ -4,7 +4,13 @@ on:
   push:
     branches:
       - deploy
-
+env:
+  AWS_ACCOUNT_ID: 716554250318
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY_FRONTEND: innovatech-frontend
+  ECR_REPOSITORY_BACKEND_VENTAS: innovatech-backend-ventas
+  ECR_REPOSITORY_BACKEND_DESPACHOS: innovatech-backend-despachos
+  EKS_CLUSTER_NAME: EKS-Innovatech
 jobs:
   build-push-deploy:
     name: Build, Push to ECR and Deploy to EKS
@@ -43,7 +49,7 @@ jobs:
           context: ./front_despacho
           file: ./front_despacho/Dockerfile
           push: true
-          tags: 945052682152.dkr.ecr.us-east-1.amazonaws.com/innovatech-frontend:latest
+          tags: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY_FRONTEND }}:latest
           provenance: false
 
       # 5. Construir y subir imagen de Backend Ventas a Amazon ECR
@@ -53,7 +59,7 @@ jobs:
           context: ./back-Ventas_SpringBoot/Springboot-API-REST
           file: ./back-Ventas_SpringBoot/Springboot-API-REST/Dockerfile
           push: true
-          tags: 945052682152.dkr.ecr.us-east-1.amazonaws.com/innovatech-backend-ventas:latest
+          tags: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY_BACKEND_VENTAS }}:latest
           provenance: false
 
       # 6. Construir y subir imagen de Backend Despachos a Amazon ECR
@@ -63,13 +69,13 @@ jobs:
           context: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
           file: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO/Dockerfile
           push: true
-          tags: 945052682152.dkr.ecr.us-east-1.amazonaws.com/innovatech-backend-despachos:latest
+          tags: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY_BACKEND_DESPACHOS }}:latest
           provenance: false
 
       # 7. Configurar kubectl para conectarse de manera automática a tu clúster de EKS
       - name: Update Kubeconfig for EKS
         run: |
-          aws eks update-kubeconfig --region us-east-1 --name EKS-Innovatech
+          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
 
       # 8. Desplegar los manifiestos en el clúster (GitOps / CD automático)
       - name: Deploy Manifests to EKS
