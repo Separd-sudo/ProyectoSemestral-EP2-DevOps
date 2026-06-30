@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-despachos-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-despachos
+  template:
+    metadata:
+      labels:
+        app: backend-despachos
+    spec:
+      containers:
+      - name: backend-despachos
+        # Usa la variable de cuenta que configuramos en el pipeline
+        image: 945052682152.dkr.ecr.us-east-1.amazonaws.com/innovatech-backend-despachos:latest
+        ports:
+        - containerPort: 8080
+        environment:
+        # Inyección automática desde el ConfigMap global
+        - name: SPRING_DATASOURCE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: innovatech-db-config
+              key: SPRING_DATASOURCE_DESPACHOS_URL
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: innovatech-db-config
+              key: POSTGRES_DESPACHOS_USER
+        # Inyección automática desde el Secret seguro de GitHub
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: innovatech-db-secrets
+              key: POSTGRES_DESPACHOS_PASSWORD
+        - name: SERVER_PORT
+          value: "8080"
