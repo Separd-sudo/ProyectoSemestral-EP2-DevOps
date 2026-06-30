@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-despachos-service
+  name: postgres-despachos-service
   namespace: innovatech
 spec:
   type: ClusterIP
   ports:
-  - port: 8080
-    targetPort: 8080
+  - port: 5432
+    targetPort: 5432
   selector:
-    app: backend-despachos
+    app: postgres-despachos

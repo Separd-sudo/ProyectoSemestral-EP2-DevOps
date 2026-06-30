@@ -80,14 +80,18 @@ jobs:
       # 8. Desplegar los manifiestos en el clúster (GitOps / CD automático)
       - name: Deploy Manifests to EKS
         run: |
-          # Aplicamos las configuraciones globales y los servicios si existen
+          # 1. Aplicar Namespace y Configuraciones Globales
+          kubectl apply -f k8s/global/innovatech.yaml || true
           kubectl apply -f k8s/global/db-secrets.yaml || true
           kubectl apply -f k8s/global/db-config.yaml || true
           
-          # Forzamos la actualización de las imágenes en los pods de EKS
+          # 2. Desplegar la Base de Datos (Resuelve el fallo de UnknownHostException de red)
+          kubectl apply -f k8s/postgres-despachos/
+          
+          # 3. Desplegar Microservicios (Capa de negocio y cliente)
           kubectl apply -f k8s/backend-despachos/
           kubectl apply -f k8s/frontend-despachos/
           
-          # Forzamos el reinicio para asegurar el rollout completo de las nuevas imágenes
+          # 4. Forzar reinicio controlado para aplicar cambios limpios
           kubectl rollout restart deployment/backend-despachos-deployment || true
           kubectl rollout restart deployment/frontend-despachos-deployment || true
