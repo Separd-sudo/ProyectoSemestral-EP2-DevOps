@@ -5,16 +5,28 @@ FROM node:20-alpine AS build
 # Define el directorio de trabajo dentro del contenedor.
 WORKDIR /app
 
-# Copia los archivos de dependencias primero para aprovechar la caché de Docker.
+# Copia los archivos de dependencias primero.
 COPY package*.json ./
 
-# Instala las dependencias del proyecto.
+# =========================================================================
+# CONTROL DE VARIABLES DE ENTORNO EN TIEMPO DE COMPILACIÓN (CI/CD)
+# Se declaran AQUÍ para que Docker rompa la caché de forma correcta y 
+# permita a Vite capturar las IPs reales antes del npm install y el build.
+# =========================================================================
+ARG VITE_API_VENTAS_URL
+ARG VITE_API_DESPACHOS_URL
+
+ENV VITE_API_VENTAS_URL=$VITE_API_VENTAS_URL
+ENV VITE_API_DESPACHOS_URL=$VITE_API_DESPACHOS_URL
+# =========================================================================
+
+# Instala las dependencias del proyecto utilizando los argumentos definidos arriba.
 RUN npm install
 
 # Copia el resto del código fuente del Frontend.
 COPY . .
 
-# Construye la versión productiva del proyecto.
+# Construye la versión productiva del proyecto inyectando de forma segura las variables.
 RUN npm run build
 
 

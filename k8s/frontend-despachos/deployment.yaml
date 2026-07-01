@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-despachos-deployment
+  namespace: innovatech
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-despachos
+  template:
+    metadata:
+      labels:
+        app: frontend-despachos
+    spec:
+      containers:
+      - name: frontend-despachos
+        image: 716554250318.dkr.ecr.us-east-1.amazonaws.com/innovatech-frontend:latest
+        ports:
+        - containerPort: 80

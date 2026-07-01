@@ -55,7 +55,7 @@ public class VentaServiceTest {
         assertEquals(venta.getDireccionCompra(), savedVenta.getDireccionCompra());
         assertEquals(venta.getValorCompra(), savedVenta.getValorCompra());
         assertEquals(venta.getFechaCompra(), savedVenta.getFechaCompra());
-        assertEquals(venta.getDespachoGenerado(), savedVenta.getDespachoGenerado());
+        assertEquals(venta.isDespachoGenerado(), savedVenta.isDespachoGenerado());
     }
 
     @Test

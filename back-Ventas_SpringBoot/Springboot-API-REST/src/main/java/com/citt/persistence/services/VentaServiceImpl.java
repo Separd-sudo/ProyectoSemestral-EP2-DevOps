@@ -45,8 +45,8 @@ public class VentaServiceImpl implements VentaService{
                 ventaDB.setFechaCompra(venta.getFechaCompra());
             }
 
-            if (Objects.nonNull(venta.getDespachoGenerado())) {
-                ventaDB.setDespachoGenerado(venta.getDespachoGenerado());
+            if (Objects.nonNull(venta.isDespachoGenerado())) {
+                ventaDB.setDespachoGenerado(venta.isDespachoGenerado());
             }
 
             // Guardar la venta actualizada en la BD
