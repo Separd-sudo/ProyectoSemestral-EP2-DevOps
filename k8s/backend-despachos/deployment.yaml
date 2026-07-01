@@ -20,9 +20,12 @@ spec:
         ports:
         - containerPort: 8080
         env:
+        # AGREGADO: Forzar a Hibernate a crear tablas faltantes automáticamente
+        - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+          value: "update"
         # Inyección automática desde el ConfigMap global
         - name: SPRING_DATASOURCE_URL
-          valueFrom:
+          valueFrom: 
             configMapKeyRef:
               name: innovatech-db-config
               key: SPRING_DATASOURCE_DESPACHOS_URL

@@ -3,6 +3,9 @@ kind: Service
 metadata:
   name: frontend-despachos-service
   namespace: innovatech
+  annotations:
+  #bloqueo de seguridad para que el balanceador de carga sea accesible desde internet
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
 spec:
   type: LoadBalancer
   ports:
