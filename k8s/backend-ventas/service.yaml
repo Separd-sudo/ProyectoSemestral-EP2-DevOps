@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-ventas-service
+  namespace: innovatech
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8081       # Puerto externo que usará el Frontend para conectarse
+    targetPort: 8080 # El puerto interno donde corre Spring Boot dentro del contenedor
+  selector:
+    app: backend-ventas

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-ventas-deployment
+  namespace: innovatech
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-ventas
+  template:
+    metadata:
+      labels:
+        app: backend-ventas
+    spec:
+      containers:
+      - name: backend-ventas
+        image: 716554250318.dkr.ecr.us-east-1.amazonaws.com/innovatech-backend-ventas:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+          value: "update"
+        - name: SPRING_DATASOURCE_URL
+          valueFrom: 
+            configMapKeyRef:
+              name: innovatech-db-config
+              key: SPRING_DATASOURCE_VENTAS_URL
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: innovatech-db-config
+              key: POSTGRES_VENTAS_USER
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: innovatech-db-secrets
+              key: POSTGRES_VENTAS_PASSWORD
+        - name: SERVER_PORT
+          value: "8080"

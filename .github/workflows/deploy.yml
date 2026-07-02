@@ -51,6 +51,9 @@ jobs:
           push: true
           tags: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY_FRONTEND }}:latest
           provenance: false
+          build-args: |
+            VITE_API_DESPACHOS_URL=${{ secrets.VITE_API_DESPACHOS_URL }}
+            VITE_API_VENTAS_URL=http://localhost:8081
 
       # 5. Construir y subir imagen de Backend Ventas a Amazon ECR
       - name: Build and push Backend Ventas image
