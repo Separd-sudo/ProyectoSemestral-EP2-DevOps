@@ -3,10 +3,12 @@ kind: Service
 metadata:
   name: backend-despachos-service
   namespace: innovatech
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
-  - port: 8080
-    targetPort: 8080
+  - port: 8080       # El puerto por el que le pegaremos desde internet
+    targetPort: 8080 # El puerto interno de tu Spring Boot
   selector:
     app: backend-despachos
