@@ -31,7 +31,7 @@ export const FormNuevaVenta = ({ onVentaCreada }) => {
       );
 
       Swal.fire({
-        title: "¡Venta Registrada!vvvvvvvvvv3",
+        title: "¡Venta Registrada!",
         text: "La compra se guardó y el despacho se generó de forma automática.",
         icon: "success",
         confirmButtonText: "Excelente",
