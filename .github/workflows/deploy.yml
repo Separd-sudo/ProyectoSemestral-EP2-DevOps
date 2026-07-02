@@ -53,7 +53,7 @@ jobs:
           provenance: false
           build-args: |
             VITE_API_DESPACHOS_URL=${{ secrets.VITE_API_DESPACHOS_URL }}
-            VITE_API_VENTAS_URL=http://localhost:8081
+            VITE_API_VENTAS_URL=${{ secrets.VITE_API_VENTAS_URL }}
 
       # 5. Construir y subir imagen de Backend Ventas a Amazon ECR
       - name: Build and push Backend Ventas image
