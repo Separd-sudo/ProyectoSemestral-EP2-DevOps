@@ -88,13 +88,16 @@ jobs:
           kubectl apply -f k8s/global/db-secrets.yaml || true
           kubectl apply -f k8s/global/db-config.yaml || true
           
-          # 2. Desplegar la Base de Datos (Resuelve el fallo de UnknownHostException de red)
+          # 2. Desplegar las Bases de Datos
           kubectl apply -f k8s/postgres-despachos/
+          kubectl apply -f k8s/postgres-ventas/        
           
           # 3. Desplegar Microservicios (Capa de negocio y cliente)
           kubectl apply -f k8s/backend-despachos/
+          kubectl apply -f k8s/backend-ventas/           
           kubectl apply -f k8s/frontend-despachos/
           
-          # 4. Forzar reinicio controlado para aplicar cambios limpios
-          kubectl rollout restart deployment/backend-despachos-deployment || true
-          kubectl rollout restart deployment/frontend-despachos-deployment || true
+          # 4. Forzar reinicio controlado para aplicar cambios limpios (con el namespace correcto)
+          kubectl rollout restart deployment/backend-despachos-deployment -n innovatech || true
+          kubectl rollout restart deployment/backend-ventas-deployment -n innovatech || true     
+          kubectl rollout restart deployment/frontend-despachos-deployment -n innovatech || true
