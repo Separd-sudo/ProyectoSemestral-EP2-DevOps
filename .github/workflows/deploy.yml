@@ -98,6 +98,6 @@ jobs:
           kubectl apply -f k8s/frontend-despachos/
           
           # 4. Forzar reinicio controlado para aplicar cambios limpios (con el namespace correcto)
-          kubectl rollout restart deployment/backend-despachos-deployment -n innovatech || true
-          kubectl rollout restart deployment/backend-ventas-deployment -n innovatech || true     
-          kubectl rollout restart deployment/frontend-despachos-deployment -n innovatech || true
+          kubectl rollout restart deployment/backend-despachos-deployment -n innovatech-v2 || true
+          kubectl rollout restart deployment/backend-ventas-deployment -n innovatech-v2 || true     
+          kubectl rollout restart deployment/frontend-despachos-deployment -n innovatech-v2 || true
