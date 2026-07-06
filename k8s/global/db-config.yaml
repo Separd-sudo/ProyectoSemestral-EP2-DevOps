@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: innovatech-db-config
-  namespace: innovatech
+  namespace: innovatech-v2
 data:
   # Configuración Base de Datos Ventas
   POSTGRES_VENTAS_DB: "ventas_db"
