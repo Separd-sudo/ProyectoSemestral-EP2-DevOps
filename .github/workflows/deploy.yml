@@ -5,7 +5,7 @@ on:
     branches:
       - deploy
 env:
-  AWS_ACCOUNT_ID: 716554250318
+  AWS_ACCOUNT_ID: 966929335910
   AWS_REGION: us-east-1
   ECR_REPOSITORY_FRONTEND: innovatech-frontend
   ECR_REPOSITORY_BACKEND_VENTAS: innovatech-backend-ventas
