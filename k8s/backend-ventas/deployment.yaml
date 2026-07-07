@@ -21,26 +21,15 @@ spec:
         env:
         - name: SPRING_JPA_HIBERNATE_DDL_AUTO
           value: "update"
-        
-        # CORREGIDO: Alineamos configMapKeyRef con valueFrom (2 espacios de sangría)
+        # CAMBIA ESTA VARIABLE IGUAL QUE EN DESPACHOS:
         - name: SPRING_DATASOURCE_URL
-          valueFrom:
-            configMapKeyRef:
-              name: innovatech-db-config
-              key: SPRING_DATASOURCE_VENTAS_URL
-        
-        # CORREGIDO: También corregimos la sangría aquí para evitar futuros errores
+          value: "jdbc:postgresql://postgres-ventas-service:5432/db_ventas"
         - name: SPRING_DATASOURCE_USERNAME
-          valueFrom:
-            configMapKeyRef:
-              name: innovatech-db-config
-              key: POSTGRES_VENTAS_USER
-        
+          value: "postgres" # <--- Pon el usuario real de tu BD de ventas
         - name: SPRING_DATASOURCE_PASSWORD
           valueFrom:
             secretKeyRef:
               name: innovatech-db-secrets
               key: POSTGRES_VENTAS_PASSWORD
-        
         - name: SERVER_PORT
           value: "8080"
