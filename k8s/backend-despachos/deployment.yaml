@@ -16,7 +16,7 @@ spec:
       containers:
       - name: backend-despachos
         # Usa la variable de cuenta que configuramos en el pipeline
-        image: 716554250318.dkr.ecr.us-east-1.amazonaws.com/innovatech-backend-despachos:latest
+        image: 966929335910.dkr.ecr.us-east-1.amazonaws.com/innovatech-backend-despachos:latest
         ports:
         - containerPort: 8080
         env:
