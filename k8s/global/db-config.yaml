@@ -11,7 +11,7 @@ data:
   SPRING_DATASOURCE_VENTAS_URL: "jdbc:postgresql://postgres-ventas-service.innovatech-v2.svc.cluster.local:5432/ventas_db"
   
   # Configuración Base de Datos Despachos
-  POSTGRES_DESPACHOS_DB: "despachos_db"
+  POSTGRES_DESPACHOS_DB: "db_despachos"
   POSTGRES_DESPACHOS_USER: "postgres"
   POSTGRES_DESPACHOS_PORT: "5432"
   # CAMBIO AQUÍ: Agregamos el sufijo del namespace y cluster local
