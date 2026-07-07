@@ -8,7 +8,7 @@ data:
   POSTGRES_VENTAS_DB: "ventas_db"
   POSTGRES_VENTAS_USER: "postgres"
   POSTGRES_VENTAS_PORT: "5432"
-  SPRING_DATASOURCE_VENTAS_URL: "jdbc:postgresql://postgres-ventas-service.innovatech.svc.cluster.local:5432/ventas_db"
+  SPRING_DATASOURCE_VENTAS_URL: "jdbc:postgresql://postgres-ventas-service.innovatech-v2.svc.cluster.local:5432/ventas_db"
   
   # Configuración Base de Datos Despachos
   POSTGRES_DESPACHOS_DB: "despachos_db"
