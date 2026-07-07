@@ -84,7 +84,7 @@ jobs:
       - name: Deploy Manifests to EKS
         run: |
           # 1. Aplicar Namespace y Configuraciones Globales
-          kubectl apply -f k8s/global/innovatech.yaml || true
+          kubectl apply -f k8s/global/innovatech-v2.yaml || true
           kubectl apply -f k8s/global/db-secrets.yaml || true
           kubectl apply -f k8s/global/db-config.yaml || true
           
