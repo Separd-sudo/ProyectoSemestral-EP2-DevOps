@@ -23,17 +23,11 @@ spec:
         # AGREGADO: Forzar a Hibernate a crear tablas faltantes automáticamente
         - name: SPRING_JPA_HIBERNATE_DDL_AUTO
           value: "update"
-        # Inyección automática desde el ConfigMap global
+        # SOLUCIÓN: Cambiamos valueFrom por el valor directo en texto (value)
         - name: SPRING_DATASOURCE_URL
-          valueFrom: 
-            configMapKeyRef:
-              name: innovatech-db-config
-              key: SPRING_DATASOURCE_DESPACHOS_URL
+          value: "jdbc:postgresql://postgres-despachos-service:5432/db_despachos"
         - name: SPRING_DATASOURCE_USERNAME
-          valueFrom:
-            configMapKeyRef:
-              name: innovatech-db-config
-              key: POSTGRES_DESPACHOS_USER
+          value: "postgres" # <--- O escribe aquí el usuario real de tu Postgres si no es 'postgres'
         # Inyección automática desde el Secret seguro de GitHub
         - name: SPRING_DATASOURCE_PASSWORD
           valueFrom:
