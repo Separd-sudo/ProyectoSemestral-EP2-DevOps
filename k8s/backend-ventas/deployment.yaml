@@ -23,7 +23,10 @@ spec:
           value: "update"
         # CAMBIA ESTA VARIABLE IGUAL QUE EN DESPACHOS:
         - name: SPRING_DATASOURCE_URL
-          value: "jdbc:postgresql://postgres-ventas-service:5432/db_ventas"
+          valueFrom:
+            configMapKeyRef:
+              name: innovatech-db-config
+              key: SPRING_DATASOURCE_VENTAS_URL
         - name: SPRING_DATASOURCE_USERNAME
           value: "postgres" # <--- Pon el usuario real de tu BD de ventas
         - name: SPRING_DATASOURCE_PASSWORD

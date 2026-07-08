@@ -62,7 +62,7 @@ services:
   # Backend Despachos (Descarga directa desde Docker Hub)
   backend-despachos:
     build:
-      context: ./back-Despachos_SpringBoot/Springboot-API-REST
+      context: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
       #image: separdx/innovatech-backend-despachos:latest
     container_name: backend-despachos
     restart: always
@@ -82,7 +82,7 @@ services:
   # Frontend Despacho (Descarga directa desde Docker Hub)
   frontend-despacho:
     build:
-      context: ./frontend-despacho
+      context: ./front_despacho
       #image: separdx/innovatech-frontend:latest
     container_name: frontend-despacho
     restart: always

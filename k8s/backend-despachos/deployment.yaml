@@ -25,7 +25,10 @@ spec:
           value: "update"
         # SOLUCIÓN: Cambiamos valueFrom por el valor directo en texto (value)
         - name: SPRING_DATASOURCE_URL
-          value: "jdbc:postgresql://postgres-despachos-service:5432/db_despachos"
+          valueFrom:
+            configMapKeyRef:
+              name: innovatech-db-config
+              key: SPRING_DATASOURCE_DESPACHOS_URL
         - name: SPRING_DATASOURCE_USERNAME
           value: "postgres" # <--- O escribe aquí el usuario real de tu Postgres si no es 'postgres'
         # Inyección automática desde el Secret seguro de GitHub
