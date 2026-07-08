@@ -50,29 +50,7 @@ export const PruebaCards = ({ activeTab, setActiveTab }) => {
         </div>
       )}
 
-      {/* Bloque superior con las tarjetas de acceso modular (solo en Inicio) */}
-      {activeTab === "inicio" && (
-        <div className="flex justify-center gap-4 mb-6">
-          <CardComponent
-            title="Consultar Ordenes de compra 💰"
-            description="Revisa las últimas oc realizadas para generar su despacho"
-            buttonText="Consultar"
-            onClick={() => {
-              fetchVentas();
-              setActiveTab("compras");
-            }}
-          />
-          <CardComponent
-            title="Revisar Ordenes de despacho 🚚"
-            description="Consulta los despachos realizados, modifica los registros de intentos o cierra la orden"
-            buttonText="Consultar"
-            onClick={() => {
-              fetchDespachos();
-              setActiveTab("despachos");
-            }}
-          />
-        </div>
-      )}
+      {/* Las tarjetas de acceso modular han sido removidas ya que la navegación se realiza desde el sidebar lateral */}
 
       {/* Vista de Ordenes de Compra */}
       {activeTab === "compras" && (

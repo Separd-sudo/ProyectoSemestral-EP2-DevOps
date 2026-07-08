@@ -14,5 +14,5 @@ data:
   POSTGRES_DESPACHOS_DB: "db_despachos"
   POSTGRES_DESPACHOS_USER: "postgres"
   POSTGRES_DESPACHOS_PORT: "5432"
-  # CAMBIO AQUÍ: Agregamos el sufijo del namespace y cluster local
+  # Agregamos el sufijo del namespace y cluster local
   SPRING_DATASOURCE_DESPACHOS_URL: "jdbc:postgresql://postgres-despachos-service.innovatech-v2.svc.cluster.local:5432/despachos_db"
