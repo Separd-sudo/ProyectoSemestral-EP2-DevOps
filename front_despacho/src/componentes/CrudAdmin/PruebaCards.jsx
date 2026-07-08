@@ -55,7 +55,6 @@ export const PruebaCards = ({ activeTab, setActiveTab }) => {
       {/* Vista de Ordenes de Compra */}
       {activeTab === "compras" && (
         <section className="mt-4">
-          <FormNuevaVenta onVentaCreada={handleVentaCreada} />
           <TableCompras compras={compras} onRefresh={fetchVentas} />
         </section>
       )}

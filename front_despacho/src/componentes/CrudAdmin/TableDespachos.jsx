@@ -1,39 +1,8 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState } from "react";
 import { Modal } from "./Modal";
 import { FormCierreDespacho } from "./FormCierreDespacho";
 
-export const TableDespachos = () => {
-  const [despachos, setDespachos] = useState([]);
-
-  const despacho = async () => {
-    await axios
-      .get(`${import.meta.env.VITE_API_DESPACHOS_URL}/api/v1/despachos`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      })
-      .then((response) => {
-        console.log(response.data);
-        // Nos aseguramos de guardar solo si es un arreglo, si no, dejamos un arreglo vacío
-        if (Array.isArray(response.data)) {
-          setDespachos(response.data);
-        } else {
-          setDespachos([]);
-        }
-      })
-      .catch((error) => {
-        console.error("Error de conexión con el backend de despachos:", error);
-        setDespachos([]); // En caso de error, reseteamos a array vacío para que no explote
-      });
-  };
-
-  // Llamada a la función para obtener los datos cuando el componente se monta
-  useEffect(() => {
-    despacho();
-  }, []);
-
+export const TableDespachos = ({ despachos, onRefresh }) => {
   const [openModal, setOpenModal] = useState(false);
   const [despachoSeleccionado, setDespachoSeleccionado] = useState(null);
 
@@ -43,72 +12,67 @@ export const TableDespachos = () => {
   };
 
   return (
-    <>
-      <section className="grid text-center grid-cols-12 mb-8">
-        <div className="col-span-12 flex justify-center">
-          <div className="col-span-10 p-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-white h-full overflow-hidden">
-            <table className="table-fixed w-full">
-              <thead>
-                <tr className="py-10">
-                  <th className="pr-10">Orden de despacho</th>
-                  <th className="pr-10">Orden de compra</th>
-                  <th className="pr-10">Dirección de entrega</th>
-                  <th className="pr-10">Fecha despacho</th>
-                  <th className="pr-10">Patente Camión</th>
-                  <th className="pr-10">Entregado</th>
-                  <th className="pr-10">Intentos de entrega</th>
-                  <th>Acción</th>
+    <div className="w-full bg-white rounded-xl shadow-sm border border-gray-100 p-6 mt-2">
+      
+      {/* Encabezado */}
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-xl font-bold text-gray-800">Órdenes de Despacho Activas</h3>
+      </div>
+
+      {/* Grilla Principal */}
+      <div className="relative overflow-x-auto rounded-xl border border-gray-100">
+        <table className="w-full text-sm text-left text-gray-500">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
+            <tr>
+              <th className="px-6 py-4 font-bold text-gray-900">ID Despacho</th>
+              <th className="px-6 py-4 text-center">ID Compra</th>
+              <th className="px-6 py-4 text-center">Dirección de Entrega</th>
+              <th className="px-6 py-4 text-center">Fecha Despacho</th>
+              <th className="px-6 py-4 text-center">Patente Camión</th>
+              <th className="px-6 py-4 text-center">Estado</th>
+              <th className="px-6 py-4 text-center">Intentos</th>
+              <th className="px-6 py-4 text-center">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.isArray(despachos) && despachos.length > 0 ? (
+              despachos.map((despacho) => (
+                <tr key={despacho.idDespacho} className="bg-white border-b hover:bg-gray-50/70 transition-colors">
+                  <td className="px-6 py-4 font-bold text-gray-900">{despacho.idDespacho}</td>
+                  <td className="px-6 py-4 text-center font-semibold text-teal-600">#{despacho.idCompra}</td>
+                  <td className="px-6 py-4 text-gray-700 max-w-xs truncate">{despacho.direccionCompra}</td>
+                  <td className="px-6 py-4 text-center text-gray-600">{despacho.fechaDespacho}</td>
+                  <td className="px-6 py-4 text-center font-mono text-gray-700 font-semibold uppercase">{despacho.patenteCamion || "PENDIENTE"}</td>
+                  <td className="px-6 py-4 text-center">
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
+                      despacho.despachado 
+                        ? "bg-green-100 text-green-800" 
+                        : "bg-amber-100 text-amber-800"
+                    }`}>
+                      {despacho.despachado ? "Entregado" : "Pendiente"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-center font-bold text-gray-700">{despacho.intento}</td>
+                  <td className="px-6 py-4 text-center">
+                    <button
+                      onClick={() => handleAbrirModal(despacho)}
+                      className="bg-orange-100 hover:bg-orange-200 text-orange-700 font-bold py-1.5 px-4 rounded-lg text-xs transition-all shadow-xs"
+                    >
+                      Cerrar despacho
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {/* 💡 CORRECCIÓN AQUÍ: Validamos que sea un arreglo válido con datos */}
-                {Array.isArray(despachos) && despachos.length > 0 ? (
-                  despachos.map((despacho) => (
-                    <tr key={despacho.idDespacho}>
-                      <td className="pr-10 py-10 items-center">{despacho.idDespacho}</td>
-                      <td className="pr-10 py-10 items-center">
-                        {despacho.idCompra}
-                      </td>
-                      <td className="pr-10 py-10 items-center">
-                        {despacho.direccionCompra}
-                      </td>
-                      <td className="pr-10 py-10 items-center">
-                        {despacho.fechaDespacho}
-                      </td>
-                      <td className="pr-10 py-10 items-center">
-                        {despacho.patenteCamion}
-                      </td>
-                      <td className="pr-10 py-10 items-center">
-                        {despacho.despachado
-                          ? "Despacho entregado"
-                          : "Despacho pendiente"}
-                      </td>
-                      <td className="pr-10 py-10 items-center">
-                        {despacho.intento}
-                      </td>
-                      <td>
-                        <button
-                          onClick={() => handleAbrirModal(despacho)}
-                          className="py-1 bg-orange-200 px-8 rounded-xl shadow-md hover:bg-orange-300/70 transition-all duration-300"
-                        >
-                          Cerrar despacho
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  /* 📦 Mensaje alternativo si la base de datos está vacía */
-                  <tr>
-                    <td colSpan="8" className="py-10 text-center text-gray-500 italic">
-                      No hay órdenes de despacho registradas en este momento... 📦
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="8" className="px-6 py-10 text-center text-gray-500 italic">
+                  No hay órdenes de despacho registradas en este momento... 📦
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
       <Modal
         onClose={() => {
@@ -121,11 +85,11 @@ export const TableDespachos = () => {
             despacho={despachoSeleccionado}
             onClose={() => {
               setOpenModal(false);
-              despacho();
+              onRefresh();
             }}
           />
         )}
       </Modal>
-    </>
+    </div>
   );
 };
