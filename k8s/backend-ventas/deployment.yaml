@@ -34,5 +34,7 @@ spec:
             secretKeyRef:
               name: innovatech-db-secrets
               key: POSTGRES_VENTAS_PASSWORD
+        - name: BACKEND_DESPACHOS_HOST
+          value: "backend-despachos-service"
         - name: SERVER_PORT
           value: "8080"

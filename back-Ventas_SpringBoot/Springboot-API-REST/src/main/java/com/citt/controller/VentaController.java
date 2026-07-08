@@ -49,7 +49,11 @@ public class VentaController {
         // 💡 REEMPLAZA ESTE BLOQUE INTERNO EN TU VENTACONTROLLER:
         try {
             RestTemplate restTemplate = new RestTemplate();
-            String urlDespachos = "http://backend-despachos:8080/api/v1/despachos";
+            String host = System.getenv("BACKEND_DESPACHOS_HOST");
+            if (host == null || host.isEmpty()) {
+                host = "backend-despachos";
+            }
+            String urlDespachos = "http://" + host + ":8080/api/v1/despachos";
 
             // Validamos si el objeto Venta trae una patente informada desde React
             String patenteAsignada = (ventaGuardada.getPatenteCamion() != null

@@ -5,9 +5,7 @@ import { TableCompras } from "./TableCompras";
 import { TableDespachos } from "./TableDespachos";
 import { FormNuevaVenta } from "./FormNuevaVenta"; // 👈 Importamos tu nuevo formulario
 
-export const PruebaCards = () => {
-  const [tablaCompras, setTablaCompras] = useState(false);
-  const [tablaOrdenes, setTablaOrdenes] = useState(false);
+export const PruebaCards = ({ activeTab, setActiveTab }) => {
   const [compras, setCompras] = useState([]);
   const [despachos, setDespachos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -52,37 +50,44 @@ export const PruebaCards = () => {
         </div>
       )}
 
-      {/* 👈 ENTRADA DE DATOS: Formulario compacto de ventas visible en la parte superior */}
-      {/* <FormNuevaVenta onVentaCreada={handleVentaCreada} /> */}
+      {/* Bloque superior con las tarjetas de acceso modular (solo en Inicio) */}
+      {activeTab === "inicio" && (
+        <div className="flex justify-center gap-4 mb-6">
+          <CardComponent
+            title="Consultar Ordenes de compra 💰"
+            description="Revisa las últimas oc realizadas para generar su despacho"
+            buttonText="Consultar"
+            onClick={() => {
+              fetchVentas();
+              setActiveTab("compras");
+            }}
+          />
+          <CardComponent
+            title="Revisar Ordenes de despacho 🚚"
+            description="Consulta los despachos realizados, modifica los registros de intentos o cierra la orden"
+            buttonText="Consultar"
+            onClick={() => {
+              fetchDespachos();
+              setActiveTab("despachos");
+            }}
+          />
+        </div>
+      )}
 
-      {/* Bloque superior con las tarjetas de acceso modular */}
-      <div className="flex justify-center gap-4 mb-6">
-        <CardComponent
-          title="Consultar Ordenes de compra 💰"
-          description="Revisa las últimas oc realizadas para generar su despacho"
-          buttonText="Consultar"
-          onClick={() => {
-            fetchVentas();
-            setTablaCompras(true);
-            setTablaOrdenes(false);
-          }}
-        />
-        <CardComponent
-          title="Revisar Ordenes de despacho 🚚"
-          description="Consulta los despachos realizados, modifica los registros de intentos o cierra la orden"
-          buttonText="Consultar"
-          onClick={() => {
-            fetchDespachos();
-            setTablaCompras(false);
-            setTablaOrdenes(true);
-          }}
-        />
-      </div>
+      {/* Vista de Ordenes de Compra */}
+      {activeTab === "compras" && (
+        <section className="mt-4">
+          <FormNuevaVenta onVentaCreada={handleVentaCreada} />
+          <TableCompras compras={compras} onRefresh={fetchVentas} />
+        </section>
+      )}
 
-      <section className="mt-4">
-        {tablaCompras && <TableCompras compras={compras} onRefresh={fetchVentas} />}
-        {tablaOrdenes && <TableDespachos despachos={despachos} onRefresh={fetchDespachos} />}
-      </section>
+      {/* Vista de Ordenes de Despachos */}
+      {activeTab === "despachos" && (
+        <section className="mt-4">
+          <TableDespachos despachos={despachos} onRefresh={fetchDespachos} />
+        </section>
+      )}
     </section>
   );
 };
